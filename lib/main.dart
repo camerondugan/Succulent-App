@@ -2,6 +2,8 @@ import 'dart:io';
 import 'package:flutter/material.dart';
 import 'package:window_size/window_size.dart';
 import 'package:card_swiper/card_swiper.dart';
+import 'package:curved_navigation_bar/curved_navigation_bar.dart';
+import 'package:succ/plant_card.dart';
 
 void main() {
   if (Platform.isWindows || Platform.isLinux || Platform.isMacOS) {
@@ -23,11 +25,12 @@ class MyApp extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
-      title: 'Flutter Demo',
-      theme: ThemeData(
-        primarySwatch: Colors.green,
-      ),
-      home: const MyHomePage(title: 'Flutter Demo Home Page'),
+      title: 'Succulents',
+      debugShowCheckedModeBanner: false,
+      theme: ThemeData.light(),
+      darkTheme: ThemeData.dark(), // standard dark theme
+      themeMode: ThemeMode.system, // device controls theme
+      home: const MyHomePage(title: 'Succulents'),
     );
   }
 }
@@ -42,38 +45,58 @@ class MyHomePage extends StatefulWidget {
 }
 
 class _MyHomePageState extends State<MyHomePage> {
+  var plants = [
+    "assets/Plant #1 Dead.png",
+    "assets/Plant #1 Sprout.png",
+    "assets/Plant #1 Medium.png",
+    "assets/Plant #1 Full.png",
+  ];
+  var colors = [
+    0xffCB997E,
+    0xffDDBEA9,
+    0xffFFE8D6,
+    0xffB7B7A4,
+    0xffA5A58D,
+    0xff6B705C
+  ];
+
   @override
   Widget build(BuildContext context) {
+    var cardHeight = MediaQuery.of(context).size.width * 7 / 8;
+    var tagHeight = 100;
     return Scaffold(
+      bottomNavigationBar: CurvedNavigationBar(
+        backgroundColor: Colors.blueGrey,
+        color: Colors.black,
+        animationCurve: Curves.fastLinearToSlowEaseIn,
+        animationDuration: const Duration(milliseconds: 1000),
+        items: const <Widget>[
+          Icon(Icons.list_alt, size: 30),
+          Icon(Icons.store_outlined, size: 30),
+        ],
+        onTap: (index) {},
+      ),
+      resizeToAvoidBottomInset: false,
       appBar: AppBar(
         title: Text(widget.title),
+        centerTitle: true,
+        primary: true,
+        foregroundColor: Colors.white,
+        backgroundColor: Colors.black,
       ),
+      backgroundColor: Colors.blueGrey,
       body: Center(
         child: Swiper(
-          itemCount: 2,
+          itemCount: 4,
           layout: SwiperLayout.STACK,
-          itemWidth: 300.0,
-          itemHeight: 400.0,
+          itemWidth: MediaQuery.of(context).size.width * 7 / 8,
+          itemHeight: cardHeight + tagHeight,
           itemBuilder: (BuildContext context, int index) {
-            return ClipRRect(
-              borderRadius: BorderRadius.circular(25.0),
-              child: Stack(
-                alignment: Alignment.center,
-                fit: StackFit.passthrough,
-                overflow: Overflow.visible,
-                clipBehavior: Clip.hardEdge,
-                children: [
-                  Image.asset(
-                    "assets/plantbg.jpg",
-                    fit: BoxFit.fill,
-                  ),
-                  Image.asset(
-                    "assets/Plant #1 Dead.png",
-                    fit: BoxFit.fill,
-                  ),
-                ],
-              ),
-            );
+            return PlantCardGen(
+                cardHeight: cardHeight,
+                tagHeight: tagHeight,
+                plants: plants,
+                index: index);
           },
         ),
       ),

@@ -1,4 +1,0 @@
-#Sun Sep 19 11:46:12 EDT 2021
-base.0=/home/cam/Code/Succ/succ/build/app/intermediates/dex/debug/mergeDexDebug/classes.dex
-renamed.0=classes.dex
-path.0=classes.dex

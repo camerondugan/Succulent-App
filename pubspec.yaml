@@ -17,6 +17,7 @@ dependencies:
         url: git://github.com/google/flutter-desktop-embedding.git
         path: plugins/window_size
   card_swiper: ^1.0.4
+  curved_navigation_bar: ^1.0.1
 
 dev_dependencies:
   flutter_test:
