@@ -1,11 +1,17 @@
 import 'dart:io';
+import 'package:succ/plant_card.dart';
+import 'package:succ/shop.dart';
 import 'package:flutter/material.dart';
 import 'package:window_size/window_size.dart';
 import 'package:card_swiper/card_swiper.dart';
 import 'package:curved_navigation_bar/curved_navigation_bar.dart';
-import 'package:succ/plant_card.dart';
 
 void main() {
+  setWindowSize();
+  runApp(const MyApp());
+}
+
+void setWindowSize() {
   if (Platform.isWindows || Platform.isLinux || Platform.isMacOS) {
     WidgetsFlutterBinding.ensureInitialized();
     const scale = 55.0;
@@ -15,7 +21,6 @@ void main() {
     setWindowMinSize(const Size(width * scale, height * scale));
     setWindowMaxSize(const Size(width * scale, height * scale));
   }
-  runApp(const MyApp());
 }
 
 class MyApp extends StatelessWidget {
@@ -59,14 +64,32 @@ class _MyHomePageState extends State<MyHomePage> {
     0xffA5A58D,
     0xff6B705C
   ];
+  int _index = 0;
 
   @override
   Widget build(BuildContext context) {
     var cardHeight = MediaQuery.of(context).size.width * 7 / 8;
     var tagHeight = 100;
+    var _pages = <Widget>[
+      Swiper(
+        itemCount: 4,
+        layout: SwiperLayout.STACK,
+        itemWidth: MediaQuery.of(context).size.width * 7 / 8,
+        itemHeight: cardHeight + tagHeight,
+        itemBuilder: (BuildContext context, int index) {
+          return PlantCardGen(
+              cardHeight: cardHeight,
+              tagHeight: tagHeight,
+              plants: plants,
+              index: index);
+        },
+      ),
+      const ShopPage(),
+    ];
     return Scaffold(
       bottomNavigationBar: CurvedNavigationBar(
         backgroundColor: Colors.blueGrey,
+        index: _index,
         color: Colors.black,
         animationCurve: Curves.fastLinearToSlowEaseIn,
         animationDuration: const Duration(milliseconds: 1000),
@@ -74,7 +97,10 @@ class _MyHomePageState extends State<MyHomePage> {
           Icon(Icons.list_alt, size: 30),
           Icon(Icons.store_outlined, size: 30),
         ],
-        onTap: (index) {},
+        onTap: (index) {
+          setState(() => _index = index);
+          stderr.writeln(_index);
+        },
       ),
       resizeToAvoidBottomInset: false,
       appBar: AppBar(
@@ -85,20 +111,9 @@ class _MyHomePageState extends State<MyHomePage> {
         backgroundColor: Colors.black,
       ),
       backgroundColor: Colors.blueGrey,
-      body: Center(
-        child: Swiper(
-          itemCount: 4,
-          layout: SwiperLayout.STACK,
-          itemWidth: MediaQuery.of(context).size.width * 7 / 8,
-          itemHeight: cardHeight + tagHeight,
-          itemBuilder: (BuildContext context, int index) {
-            return PlantCardGen(
-                cardHeight: cardHeight,
-                tagHeight: tagHeight,
-                plants: plants,
-                index: index);
-          },
-        ),
+      body: IndexedStack(
+        index: _index,
+        children: _pages,
       ),
     );
   }
