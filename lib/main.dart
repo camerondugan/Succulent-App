@@ -2,6 +2,7 @@ import 'dart:io';
 import 'dart:math';
 import 'package:flutter/services.dart';
 import 'package:flutter/material.dart';
+import 'package:succ/storage.dart';
 import 'package:window_size/window_size.dart';
 import 'package:card_swiper/card_swiper.dart';
 import 'package:curved_navigation_bar/curved_navigation_bar.dart';
@@ -62,12 +63,12 @@ class _SuccState extends State<Succ> {
     "Empty",
   ];
   var shopPlants = [
-    "assets/Plant #1 Dead.png",
-    "assets/Plant #1 Full.png",
-    "assets/Plant #1 Medium.png",
-    "assets/Plant #1 Sprout.png",
-    "assets/Plant #1 Full.png",
-    "assets/Plant #1 Full.png",
+    "assets/Plant1Dead.png",
+    "assets/Plant1Full.png",
+    "assets/Plant1Medium.png",
+    "assets/Plant1Sprout.png",
+    "assets/Plant1Full.png",
+    "assets/Plant1Full.png",
   ];
   var colors = [
     0xffCB997E,
@@ -78,14 +79,28 @@ class _SuccState extends State<Succ> {
     0xff6B705C
   ];
   int pageIndex = 0;
+  Storage save = Storage();
 
   @override
-  void initState() {
+  initState() {
     super.initState();
     SystemChrome.setPreferredOrientations([
       DeviceOrientation.portraitUp,
       DeviceOrientation.portraitDown,
     ]);
+    Future.delayed(Duration.zero, () async {
+      var savedPlants = await save.readYourPlants();
+      var savedWater = await save.readWater();
+      if (savedPlants.isNotEmpty) {
+        plants = savedPlants;
+        print(plants.toString());
+      }
+      if (savedWater.isNotEmpty) {
+        plantWater = savedWater;
+        print(plantWater.toString());
+      }
+      setState(() {});
+    });
   }
 
   void takeFromShop(index) {
@@ -95,11 +110,13 @@ class _SuccState extends State<Succ> {
         plants[i] = shopPlants[index];
         shopPlants[index] = "assets/NoPlant.png";
         plantWater[i] = 0;
+        setState(() {});
+        save.writePlants(plants);
+        save.writeWater(plantWater);
         break;
       }
       i++;
     }
-    setState(() {});
   }
 
   int takeFromHome(index) {
@@ -110,8 +127,15 @@ class _SuccState extends State<Succ> {
         plants[index] = 'assets/NoPlant.png';
         plantWater[index] = 3;
         setState(() {});
+        save.writePlants(plants);
+        save.writeWater(plantWater);
         return i;
       }
+      plants[index] = 'assets/NoPlant.png';
+      plantWater[index] = 3;
+      setState(() {});
+      save.writePlants(plants);
+      save.writeWater(plantWater);
       i++;
     }
     return -1;
@@ -238,6 +262,7 @@ class _SuccState extends State<Succ> {
               if (plants[index] != "assets/NoPlant.png") {
                 plantWater[index] = min(plantWater[index] + 1, 2);
               }
+              save.writeWater(plantWater);
               setState(() {});
             },
             onLongPress: () {
@@ -252,14 +277,20 @@ class _SuccState extends State<Succ> {
                     if (shopItemIndex != -1) {
                       takeFromShop(shopItemIndex);
                       plantWater[index] = hydration;
+                      save.writeWater(plantWater);
                     }
                   },
                 ),
               );
               ScaffoldMessenger.of(context).showSnackBar(snack);
             },
-            child: plantCard(plantWaterExpressions[plantWater[index]],
-                cardHeight, tagHeight, plants[index], 50, true),
+            child: plantCard(
+                plantWaterExpressions[plantWater[index % plantWater.length]],
+                cardHeight,
+                tagHeight,
+                plants[index],
+                50,
+                true),
           );
         },
       ),
