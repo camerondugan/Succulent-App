@@ -93,14 +93,13 @@ class _SuccState extends State<Succ> {
       var savedWater = await save.readWater();
       if (savedPlants.isNotEmpty) {
         plants = savedPlants;
-        print(plants.toString());
       }
       if (savedWater.isNotEmpty) {
         plantWater = savedWater;
-        print(plantWater.toString());
       }
       setState(() {});
     });
+    setState(() {});
   }
 
   void takeFromShop(index) {
@@ -113,10 +112,17 @@ class _SuccState extends State<Succ> {
         setState(() {});
         save.writePlants(plants);
         save.writeWater(plantWater);
-        break;
+        return;
       }
       i++;
     }
+    const snackBar = SnackBar(
+      content: Text('Your home is full 😭'),
+      backgroundColor: Colors.transparent,
+      elevation: 1.0,
+      duration: Duration(milliseconds: 1300),
+    );
+    ScaffoldMessenger.of(context).showSnackBar(snackBar);
   }
 
   int takeFromHome(index) {
@@ -175,12 +181,12 @@ class _SuccState extends State<Succ> {
                     "assets/plantbg.jpg",
                     height: cardHeight,
                     width: cardHeight,
-                    fit: BoxFit.cover,
+                    fit: BoxFit.fill,
                   ),
                   Image.asset(
                     plant,
                     height: cardHeight,
-                    fit: BoxFit.fill,
+                    fit: BoxFit.fitWidth,
                   ),
                 ],
               ),
@@ -255,7 +261,6 @@ class _SuccState extends State<Succ> {
         layout: SwiperLayout.STACK,
         itemWidth: MediaQuery.of(context).size.width * 7 / 8,
         itemHeight: cardHeight + tagHeight,
-        duration: 250,
         itemBuilder: (BuildContext context, int index) {
           return GestureDetector(
             onTap: () {
