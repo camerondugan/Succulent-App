@@ -3,6 +3,7 @@ import 'dart:math';
 import 'package:flutter/services.dart';
 import 'package:flutter/material.dart';
 import 'package:succ/storage.dart';
+import 'package:succ/plant_card.dart';
 import 'package:window_size/window_size.dart';
 import 'package:card_swiper/card_swiper.dart';
 import 'package:curved_navigation_bar/curved_navigation_bar.dart';
@@ -147,72 +148,10 @@ class _SuccState extends State<Succ> {
     return -1;
   }
 
-  Widget plantCard(String description, double cardHeight, int tagHeight,
-      String plant, double edgeRadius, bool purchasable) {
-    return Container(
-      margin: EdgeInsets.zero,
-      padding: EdgeInsets.zero,
-      decoration: BoxDecoration(
-        borderRadius: BorderRadius.only(
-          topLeft: Radius.circular(edgeRadius),
-          topRight: Radius.circular(edgeRadius),
-          bottomLeft: Radius.circular(edgeRadius),
-          bottomRight: Radius.circular(edgeRadius),
-        ),
-        boxShadow: [
-          BoxShadow(
-            color: Colors.black.withOpacity(0.75),
-            offset: const Offset(4, 8),
-          ),
-        ],
-        color: Colors.transparent,
-      ),
-      child: ClipRRect(
-        borderRadius: BorderRadius.circular(edgeRadius),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.stretch,
-          children: [
-            Expanded(
-              flex: 10,
-              child: Stack(
-                alignment: Alignment.center,
-                children: [
-                  Image.asset(
-                    "assets/plantbg.jpg",
-                    height: cardHeight,
-                    width: cardHeight,
-                    fit: BoxFit.fill,
-                  ),
-                  Image.asset(
-                    plant,
-                    height: cardHeight,
-                    fit: BoxFit.fitWidth,
-                  ),
-                ],
-              ),
-            ),
-            Expanded(
-              flex: tagHeight,
-              child: Container(
-                decoration: const BoxDecoration(
-                  color: Colors.white,
-                ),
-                child: Center(
-                  child: Text(
-                    description,
-                    style: const TextStyle(
-                      color: Colors.black,
-                      fontWeight: FontWeight.bold,
-                    ),
-                  ),
-                ),
-              ),
-            ),
-          ],
-        ),
-      ),
-    );
-  }
+  //Widget plantCard(String description, double cardHeight, int tagHeight,
+      //String plant, double edgeRadius, bool purchasable) {
+    //return plantCard();
+  //}
 
   Widget shop() {
     var cardHeight = MediaQuery.of(context).size.height;
@@ -242,8 +181,15 @@ class _SuccState extends State<Succ> {
               onTap: () {
                 takeFromShop(index);
               },
-              child: plantCard(tags[index], cardHeight, tagHeight,
-                  shopPlants[index], 30, true),
+              child: PlantCard(
+                plant: shopPlants[index],
+                tag: tags[index],
+                height: cardHeight,
+                tagHeight: tagHeight,
+                edgeRadius: 30,
+              )
+              //plantCard(tags[index], cardHeight, tagHeight,
+              //shopPlants[index], 30, true),
             ),
           );
         },
@@ -289,13 +235,13 @@ class _SuccState extends State<Succ> {
               );
               ScaffoldMessenger.of(context).showSnackBar(snack);
             },
-            child: plantCard(
-                plantWaterExpressions[plantWater[index % plantWater.length]],
-                cardHeight,
-                tagHeight,
-                plants[index],
-                50,
-                true),
+            child: PlantCard(
+                tag: plantWaterExpressions[plantWater[index % plantWater.length]],
+                height: cardHeight,
+                tagHeight: tagHeight,
+                plant: plants[index],
+                edgeRadius: 50,
+            ),
           );
         },
       ),
