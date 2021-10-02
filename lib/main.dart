@@ -2,6 +2,7 @@ import 'dart:io';
 import 'dart:math';
 import 'package:flutter/services.dart';
 import 'package:flutter/material.dart';
+import 'package:succ/shop.dart';
 import 'package:succ/storage.dart';
 import 'package:succ/plant_card.dart';
 import 'package:window_size/window_size.dart';
@@ -100,7 +101,6 @@ class _SuccState extends State<Succ> {
       }
       setState(() {});
     });
-    setState(() {});
   }
 
   void takeFromShop(index) {
@@ -148,11 +148,6 @@ class _SuccState extends State<Succ> {
     return -1;
   }
 
-  //Widget plantCard(String description, double cardHeight, int tagHeight,
-      //String plant, double edgeRadius, bool purchasable) {
-    //return plantCard();
-  //}
-
   Widget shop() {
     var cardHeight = MediaQuery.of(context).size.height;
     var tagHeight = 2;
@@ -178,19 +173,19 @@ class _SuccState extends State<Succ> {
           return Padding(
             padding: const EdgeInsets.all(8.0),
             child: GestureDetector(
-              onTap: () {
-                takeFromShop(index);
-              },
-              child: PlantCard(
-                plant: shopPlants[index],
-                tag: tags[index],
-                height: cardHeight,
-                tagHeight: tagHeight,
-                edgeRadius: 30,
-              )
-              //plantCard(tags[index], cardHeight, tagHeight,
-              //shopPlants[index], 30, true),
-            ),
+                onTap: () {
+                  takeFromShop(index);
+                },
+                child: PlantCard(
+                  plant: shopPlants[index],
+                  tag: tags[index],
+                  height: cardHeight,
+                  tagHeight: tagHeight,
+                  edgeRadius: 30,
+                )
+                //plantCard(tags[index], cardHeight, tagHeight,
+                //shopPlants[index], 30, true),
+                ),
           );
         },
       ),
@@ -236,16 +231,20 @@ class _SuccState extends State<Succ> {
               ScaffoldMessenger.of(context).showSnackBar(snack);
             },
             child: PlantCard(
-                tag: plantWaterExpressions[plantWater[index % plantWater.length]],
-                height: cardHeight,
-                tagHeight: tagHeight,
-                plant: plants[index],
-                edgeRadius: 50,
+              tag: plantWaterExpressions[plantWater[index % plantWater.length]],
+              height: cardHeight,
+              tagHeight: tagHeight,
+              plant: plants[index],
+              edgeRadius: 50,
             ),
           );
         },
       ),
-      shop(),
+      Shop(
+          shopPlants: shopPlants,
+          takeFromShop: (int i) {
+            takeFromShop(i);
+          }),
     ];
     return Scaffold(
       bottomNavigationBar: CurvedNavigationBar(
