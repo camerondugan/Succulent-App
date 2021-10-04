@@ -1,19 +1,20 @@
 import 'package:flutter/material.dart';
 
 class PlantCard extends StatelessWidget {
-  final String tag;
   final String plant;
+  final String tag;
   final int tagHeight;
   final double height;
+  final int index;
   final double edgeRadius;
-
 
   const PlantCard({
     Key? key,
-    required this.tag,
-    required this.height,
-    required this.tagHeight,
     required this.plant,
+    required this.tag,
+    required this.tagHeight,
+    required this.height,
+    required this.index,
     required this.edgeRadius,
   }) : super(key: key);
 
@@ -67,14 +68,33 @@ class PlantCard extends StatelessWidget {
                 decoration: const BoxDecoration(
                   color: Colors.white,
                 ),
-                child: Center(
-                  child: Text(
-                    tag,
-                    style: const TextStyle(
-                      color: Colors.black,
-                      fontWeight: FontWeight.bold,
+                child: Row(
+                  children: [
+                    const Spacer(),
+                    const Spacer(),
+                    const Spacer(),
+                    const Spacer(),
+                    Text(
+                      tag,
+                      style: const TextStyle(
+                        color: Colors.black,
+                        fontSize: 20,
+                        fontWeight: FontWeight.bold,
+                      ),
                     ),
-                  ),
+                    const Spacer(),
+                    Text(
+                      "#" + (index + 1).toString(),
+                      style: const TextStyle(
+                        color: Colors.black,
+                        fontSize: 20,
+                        backgroundColor: Colors.greenAccent,
+                        fontWeight: FontWeight.bold,
+                      ),
+                    ),
+                    const Spacer(),
+                    const Spacer(),
+                  ],
                 ),
               ),
             ),

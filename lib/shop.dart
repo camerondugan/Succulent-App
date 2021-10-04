@@ -45,6 +45,7 @@ class Shop extends StatelessWidget {
                 tag: tags[index],
                 height: cardHeight,
                 tagHeight: tagHeight,
+                index: index,
                 edgeRadius: 30,
               ),
             ),

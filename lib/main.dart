@@ -181,6 +181,7 @@ class _SuccState extends State<Succ> {
                   tag: tags[index],
                   height: cardHeight,
                   tagHeight: tagHeight,
+                  index: index,
                   edgeRadius: 30,
                 )
                 //plantCard(tags[index], cardHeight, tagHeight,
@@ -235,6 +236,7 @@ class _SuccState extends State<Succ> {
               height: cardHeight,
               tagHeight: tagHeight,
               plant: plants[index],
+              index: index,
               edgeRadius: 50,
             ),
           );
