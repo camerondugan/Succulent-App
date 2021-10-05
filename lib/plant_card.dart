@@ -20,6 +20,10 @@ class PlantCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    int showNum = 1;
+    if (tag == "Buy Me!" || tag == "Sold!") {
+      showNum = 0;
+    }
     return Container(
       margin: EdgeInsets.zero,
       padding: EdgeInsets.zero,
@@ -68,32 +72,49 @@ class PlantCard extends StatelessWidget {
                 decoration: const BoxDecoration(
                   color: Colors.white,
                 ),
-                child: Row(
+                child: IndexedStack(
+                  index: showNum,
                   children: [
-                    const Spacer(),
-                    const Spacer(),
-                    const Spacer(),
-                    const Spacer(),
-                    Text(
-                      tag,
-                      style: const TextStyle(
-                        color: Colors.black,
-                        fontSize: 20,
-                        fontWeight: FontWeight.bold,
+                    Center(
+                      child: Text(
+                        tag,
+                        style: const TextStyle(
+                          color: Colors.black,
+                          fontSize: 20,
+                          fontWeight: FontWeight.bold,
+                        ),
                       ),
                     ),
-                    const Spacer(),
-                    Text(
-                      "#" + (index + 1).toString(),
-                      style: const TextStyle(
-                        color: Colors.black,
-                        fontSize: 20,
-                        backgroundColor: Colors.greenAccent,
-                        fontWeight: FontWeight.bold,
+                    Center(
+                      child: Row(
+                        children: [
+                          const Spacer(),
+                          const Spacer(),
+                          const Spacer(),
+                          const Spacer(),
+                          Text(
+                            tag,
+                            style: const TextStyle(
+                              color: Colors.black,
+                              fontSize: 20,
+                              fontWeight: FontWeight.bold,
+                            ),
+                          ),
+                          const Spacer(),
+                          Text(
+                            "#" + (index + 1).toString(),
+                            style: const TextStyle(
+                              color: Colors.black,
+                              fontSize: 20,
+                              backgroundColor: Colors.greenAccent,
+                              fontWeight: FontWeight.bold,
+                            ),
+                          ),
+                          const Spacer(),
+                          const Spacer(),
+                        ],
                       ),
                     ),
-                    const Spacer(),
-                    const Spacer(),
                   ],
                 ),
               ),

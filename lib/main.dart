@@ -81,6 +81,7 @@ class _SuccState extends State<Succ> {
     0xff6B705C
   ];
   int pageIndex = 0;
+  var purchasedPlants = [];
   Storage save = Storage();
 
   @override
@@ -108,7 +109,7 @@ class _SuccState extends State<Succ> {
     for (String s in plants) {
       if (s == "assets/NoPlant.png") {
         plants[i] = shopPlants[index];
-        shopPlants[index] = "assets/NoPlant.png";
+        purchasedPlants.add(i);
         plantWater[i] = 0;
         setState(() {});
         save.writePlants(plants);
@@ -130,7 +131,7 @@ class _SuccState extends State<Succ> {
     int i = 0;
     for (String plant in shopPlants) {
       if (plant == 'assets/NoPlant.png') {
-        shopPlants[i] = plants[index];
+        purchasedPlants.remove(i);
         plants[index] = 'assets/NoPlant.png';
         plantWater[index] = 3;
         setState(() {});
@@ -138,13 +139,13 @@ class _SuccState extends State<Succ> {
         save.writeWater(plantWater);
         return i;
       }
-      plants[index] = 'assets/NoPlant.png';
-      plantWater[index] = 3;
-      setState(() {});
-      save.writePlants(plants);
-      save.writeWater(plantWater);
       i++;
     }
+    plants[index] = 'assets/NoPlant.png';
+    plantWater[index] = 3;
+    setState(() {});
+    save.writePlants(plants);
+    save.writeWater(plantWater);
     return -1;
   }
 
