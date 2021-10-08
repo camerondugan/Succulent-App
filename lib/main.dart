@@ -20,7 +20,7 @@ void setWindowSize() {
     const scale = 55.0;
     const width = 9.0;
     const height = 19.0;
-    setWindowTitle('Succ');
+    setWindowTitle('Succulents');
     setWindowMinSize(const Size(width * scale, height * scale));
     setWindowMaxSize(const Size(width * scale, height * scale));
   }
@@ -97,6 +97,11 @@ class _SuccState extends State<Succ> {
       var savedPlants = await save.readYourPlants();
       var savedWater = await save.readWater();
       var savedPurchases = await save.readPurchases();
+      var lastTick = await save.readLastTick();
+      if (lastTick == null) {
+        lastTick = now;
+        save.writeLastTick(now);
+      }
       if (savedPlants.isNotEmpty) {
         plants = savedPlants;
       }
@@ -106,9 +111,15 @@ class _SuccState extends State<Succ> {
       if (savedPurchases.isNotEmpty) {
         purchasedPlants = savedPurchases.cast<int>();
       }
+      if (now.difference(lastTick) > const Duration(hours: 16)) {
+        onTick();
+        save.writeLastTick(now);
+      }
       setState(() {});
     });
   }
+
+  void onTick() {}
 
   void takeFromShop(index) {
     int i = 0;

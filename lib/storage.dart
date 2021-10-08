@@ -119,23 +119,23 @@ class Storage {
     }
   }
 
-  Future<File> writeLastTick(List<DateTime> tick) async {
-    final file = await _yourPlantsFile;
+  Future<File> writeLastTick(DateTime tick) async {
+    final file = await _lastTick;
 
     // Write the file
     return file.writeAsString(tick.toString());
   }
 
-  Future<DateTime> readLastTick() async {
+  Future<dynamic> readLastTick() async {
+    dynamic contents;
     try {
-      final file = await _yourPlantsFile;
+      final file = await _lastTick;
 
-      final contents = await file.readAsString();
+      contents = await file.readAsString();
 
       return DateTime.parse(contents);
     } catch (e) {
-      print("issue with dateTime");
-      return DateTime.now();
+      return null;
     }
   }
 }
