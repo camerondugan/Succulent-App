@@ -39,11 +39,11 @@ class Storage {
     return File('$path/yourWater.txt');
   }
 
-  Future<File> get _purchasedPlants async {
+  Future<File> get _purchases async {
     final dir = await Directory(await localPath + '/' + hiddenFolder)
         .create(recursive: true);
     final path = dir.path;
-    return File('$path/shopPlants.txt');
+    return File('$path/purchases.txt');
   }
 
   Future<File> writeWater(List<int> water) async {
@@ -70,20 +70,24 @@ class Storage {
     }
   }
 
-  Future<File> writeShopPlants(List<String> plants) async {
-    final file = await _purchasedPlants;
+  Future<File> writePurchases(List<int> plants) async {
+    final file = await _purchases;
 
     // Write the file
     return file.writeAsString(generateString(plants));
   }
 
-  Future<List<String>> readShopPlants() async {
+  Future<List<int>> readPurchases() async {
     try {
-      final file = await _purchasedPlants;
+      final file = await _purchases;
 
       final contents = await file.readAsString();
+      List<int> ans = [];
+      for (String s in contents.split(delim)) {
+        ans.add(int.parse(s));
+      }
 
-      return contents.split(delim);
+      return ans;
     } catch (e) {
       return [];
     }

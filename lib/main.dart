@@ -81,7 +81,7 @@ class _SuccState extends State<Succ> {
     0xff6B705C
   ];
   int pageIndex = 0;
-  var purchasedPlants = [];
+  List<int> purchasedPlants = [];
   Storage save = Storage();
 
   @override
@@ -94,11 +94,15 @@ class _SuccState extends State<Succ> {
     Future.delayed(Duration.zero, () async {
       var savedPlants = await save.readYourPlants();
       var savedWater = await save.readWater();
+      var savedPurchases = await save.readPurchases();
       if (savedPlants.isNotEmpty) {
         plants = savedPlants;
       }
       if (savedWater.isNotEmpty) {
         plantWater = savedWater;
+      }
+      if (savedPurchases.isNotEmpty) {
+        purchasedPlants = savedPurchases.cast<int>();
       }
       setState(() {});
     });
@@ -109,20 +113,23 @@ class _SuccState extends State<Succ> {
     for (String s in plants) {
       if (s == "assets/NoPlant.png") {
         plants[i] = shopPlants[index];
-        purchasedPlants.add(i);
+        purchasedPlants.add(index);
         plantWater[i] = 0;
         setState(() {});
         save.writePlants(plants);
         save.writeWater(plantWater);
+        save.writePurchases(purchasedPlants);
         return;
       }
       i++;
     }
     const snackBar = SnackBar(
       content: Text('Your home is full 😭'),
-      backgroundColor: Colors.transparent,
+      backgroundColor: Colors.blue,
       elevation: 1.0,
+      padding: EdgeInsets.all(10),
       duration: Duration(milliseconds: 1300),
+      dismissDirection: DismissDirection.horizontal,
     );
     ScaffoldMessenger.of(context).showSnackBar(snackBar);
   }
@@ -130,13 +137,14 @@ class _SuccState extends State<Succ> {
   int takeFromHome(index) {
     int i = 0;
     for (String plant in shopPlants) {
-      if (plant == 'assets/NoPlant.png') {
+      if (plant == plants[index] && purchasedPlants.contains(i)) {
         purchasedPlants.remove(i);
         plants[index] = 'assets/NoPlant.png';
         plantWater[index] = 3;
         setState(() {});
         save.writePlants(plants);
         save.writeWater(plantWater);
+        save.writePurchases(purchasedPlants);
         return i;
       }
       i++;
@@ -147,51 +155,6 @@ class _SuccState extends State<Succ> {
     save.writePlants(plants);
     save.writeWater(plantWater);
     return -1;
-  }
-
-  Widget shop() {
-    var cardHeight = MediaQuery.of(context).size.height;
-    var tagHeight = 2;
-    var tags = [];
-    for (String plant in shopPlants) {
-      if (plant == "assets/NoPlant.png") {
-        tags.add("Sold!");
-      } else {
-        tags.add("Buy Me!");
-      }
-    }
-    return Padding(
-      padding: const EdgeInsets.fromLTRB(10, 35, 10, 10),
-      child: GridView.builder(
-        itemCount: shopPlants.length,
-        gridDelegate: const SliverGridDelegateWithMaxCrossAxisExtent(
-          maxCrossAxisExtent: 250,
-          childAspectRatio: 1 / 1,
-          crossAxisSpacing: 20,
-          mainAxisSpacing: 20,
-        ),
-        itemBuilder: (BuildContext context, int index) {
-          return Padding(
-            padding: const EdgeInsets.all(8.0),
-            child: GestureDetector(
-                onTap: () {
-                  takeFromShop(index);
-                },
-                child: PlantCard(
-                  plant: shopPlants[index],
-                  tag: tags[index],
-                  height: cardHeight,
-                  tagHeight: tagHeight,
-                  index: index,
-                  edgeRadius: 30,
-                )
-                //plantCard(tags[index], cardHeight, tagHeight,
-                //shopPlants[index], 30, true),
-                ),
-          );
-        },
-      ),
-    );
   }
 
   @override
@@ -219,6 +182,7 @@ class _SuccState extends State<Succ> {
               final snack = SnackBar(
                 content: const Text("You sold your plant! :)"),
                 shape: const RoundedRectangleBorder(),
+                dismissDirection: DismissDirection.horizontal,
                 action: SnackBarAction(
                   label: 'Undo',
                   onPressed: () {
@@ -244,10 +208,12 @@ class _SuccState extends State<Succ> {
         },
       ),
       Shop(
-          shopPlants: shopPlants,
-          takeFromShop: (int i) {
-            takeFromShop(i);
-          }),
+        shopPlants: shopPlants,
+        takeFromShop: (int i) {
+          takeFromShop(i);
+        },
+        takenPlants: purchasedPlants,
+      ),
     ];
     return Scaffold(
       bottomNavigationBar: CurvedNavigationBar(

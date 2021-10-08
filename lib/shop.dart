@@ -4,11 +4,13 @@ import 'package:succ/plant_card.dart';
 class Shop extends StatelessWidget {
   final List<String> shopPlants;
   final Function takeFromShop;
+  final List<int> takenPlants;
 
   const Shop({
     Key? key,
     required this.shopPlants,
     required this.takeFromShop,
+    required this.takenPlants,
   }) : super(key: key);
 
   @override
@@ -41,7 +43,9 @@ class Shop extends StatelessWidget {
                 takeFromShop(index);
               },
               child: PlantCard(
-                plant: shopPlants[index],
+                plant: takenPlants.contains(index)
+                    ? "assets/NoPlant.png"
+                    : shopPlants[index],
                 tag: tags[index],
                 height: cardHeight,
                 tagHeight: tagHeight,
