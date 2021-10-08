@@ -46,6 +46,13 @@ class Storage {
     return File('$path/purchases.txt');
   }
 
+  Future<File> get _lastTick async {
+    final dir = await Directory(await localPath + '/' + hiddenFolder)
+        .create(recursive: true);
+    final path = dir.path;
+    return File('$path/lastTick.txt');
+  }
+
   Future<File> writeWater(List<int> water) async {
     final file = await _yourWater;
 
@@ -109,6 +116,26 @@ class Storage {
       return contents.split(delim);
     } catch (e) {
       return [];
+    }
+  }
+
+  Future<File> writeLastTick(List<DateTime> tick) async {
+    final file = await _yourPlantsFile;
+
+    // Write the file
+    return file.writeAsString(tick.toString());
+  }
+
+  Future<DateTime> readLastTick() async {
+    try {
+      final file = await _yourPlantsFile;
+
+      final contents = await file.readAsString();
+
+      return DateTime.parse(contents);
+    } catch (e) {
+      print("issue with dateTime");
+      return DateTime.now();
     }
   }
 }

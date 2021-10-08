@@ -80,6 +80,7 @@ class _SuccState extends State<Succ> {
     0xffA5A58D,
     0xff6B705C
   ];
+  DateTime now = DateTime.now();
   int pageIndex = 0;
   List<int> purchasedPlants = [];
   Storage save = Storage();
@@ -87,6 +88,7 @@ class _SuccState extends State<Succ> {
   @override
   initState() {
     super.initState();
+    print(now.toString());
     SystemChrome.setPreferredOrientations([
       DeviceOrientation.portraitUp,
       DeviceOrientation.portraitDown,
