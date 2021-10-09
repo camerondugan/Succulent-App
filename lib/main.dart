@@ -57,11 +57,12 @@ class _SuccState extends State<Succ> {
     "assets/NoPlant.png",
     "assets/NoPlant.png",
   ];
-  var plantWater = [3, 3, 3, 3];
+  var plantWater = [4, 4, 4, 4];
   var plantWaterExpressions = [
     "I'm dehydrated",
     "I'm satisfied",
     "I'm drowning",
+    "I'm dead",
     "Empty",
   ];
   var shopPlants = [
@@ -88,7 +89,6 @@ class _SuccState extends State<Succ> {
   @override
   initState() {
     super.initState();
-    print(now.toString());
     SystemChrome.setPreferredOrientations([
       DeviceOrientation.portraitUp,
       DeviceOrientation.portraitDown,
@@ -98,10 +98,6 @@ class _SuccState extends State<Succ> {
       var savedWater = await save.readWater();
       var savedPurchases = await save.readPurchases();
       var lastTick = await save.readLastTick();
-      if (lastTick == null) {
-        lastTick = now;
-        save.writeLastTick(now);
-      }
       if (savedPlants.isNotEmpty) {
         plants = savedPlants;
       }
@@ -111,6 +107,10 @@ class _SuccState extends State<Succ> {
       if (savedPurchases.isNotEmpty) {
         purchasedPlants = savedPurchases.cast<int>();
       }
+      if (lastTick == null) {
+        lastTick = now;
+        save.writeLastTick(now);
+      }
       if (now.difference(lastTick) > const Duration(hours: 16)) {
         onTick();
         save.writeLastTick(now);
@@ -119,7 +119,27 @@ class _SuccState extends State<Succ> {
     });
   }
 
-  void onTick() {}
+  void onTick() {
+    for (int i = 0; i < plantWater.length; i++) {
+      if (plants[i] != "assets/NoPlant.png" &&
+          (plantWater[i] == 0 || plantWater[i] == 2)) {
+        plants[i] = plants[i].substring(0, 13) + "Dead.png";
+        plantWater[i] = 4;
+      }
+      if (plants[i].contains('Dead')) {
+        plantWater[i] = 3;
+      } else if (!plants[i].contains("NoPlant")) {
+        plantWater[i] -= 1;
+        if (plantWater[i] == -1) {
+          plantWater[i] = 3;
+        }
+      }
+    }
+    purchasedPlants = [];
+    save.writePlants(plants);
+    save.writeWater(plantWater);
+    save.writePurchases(purchasedPlants);
+  }
 
   void takeFromShop(index) {
     int i = 0;
@@ -138,7 +158,7 @@ class _SuccState extends State<Succ> {
     }
     const snackBar = SnackBar(
       content: Text('Your home is full 😭'),
-      backgroundColor: Colors.blue,
+      backgroundColor: Colors.greenAccent,
       elevation: 1.0,
       padding: EdgeInsets.all(10),
       duration: Duration(milliseconds: 1300),
@@ -149,11 +169,18 @@ class _SuccState extends State<Succ> {
 
   int takeFromHome(index) {
     int i = 0;
+    if (plants[index].contains("Dead")) {
+      plants[index] = 'assets/NoPlant.png';
+      plantWater[index] = 4;
+      setState(() {});
+      save.writePlants(plants);
+      save.writeWater(plantWater);
+    }
     for (String plant in shopPlants) {
       if (plant == plants[index] && purchasedPlants.contains(i)) {
         purchasedPlants.remove(i);
         plants[index] = 'assets/NoPlant.png';
-        plantWater[index] = 3;
+        plantWater[index] = 4;
         setState(() {});
         save.writePlants(plants);
         save.writeWater(plantWater);
@@ -163,7 +190,7 @@ class _SuccState extends State<Succ> {
       i++;
     }
     plants[index] = 'assets/NoPlant.png';
-    plantWater[index] = 3;
+    plantWater[index] = 4;
     setState(() {});
     save.writePlants(plants);
     save.writeWater(plantWater);
@@ -184,18 +211,26 @@ class _SuccState extends State<Succ> {
           return GestureDetector(
             onTap: () {
               if (plants[index] != "assets/NoPlant.png") {
-                plantWater[index] = min(plantWater[index] + 1, 2);
+                plantWater[index] = min(plantWater[index] + 1, 3);
               }
               save.writeWater(plantWater);
               setState(() {});
             },
             onLongPress: () {
+              if (plants[index].contains('NoPlant')) {
+                return;
+              }
               int hydration = plantWater[index];
+              final String plant = plants[index];
               int shopItemIndex = takeFromHome(index);
-              final snack = SnackBar(
-                content: const Text("You sold your plant! :)"),
+              SnackBar snack = SnackBar(
+                content: plant.contains("Dead")
+                    ? const Text("You threw out your plant. :(")
+                    : const Text("You sold your plant! :)"),
                 shape: const RoundedRectangleBorder(),
                 dismissDirection: DismissDirection.horizontal,
+                duration: const Duration(seconds: 1),
+                backgroundColor: Colors.greenAccent,
                 action: SnackBarAction(
                   label: 'Undo',
                   onPressed: () {

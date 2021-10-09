@@ -18,8 +18,8 @@ class Shop extends StatelessWidget {
     var cardHeight = MediaQuery.of(context).size.height;
     var tagHeight = 2;
     var tags = [];
-    for (String plant in shopPlants) {
-      if (plant == "assets/NoPlant.png") {
+    for (int i = 0; i < shopPlants.length; i++) {
+      if (takenPlants.contains(i)) {
         tags.add("Sold!");
       } else {
         tags.add("Buy Me!");

@@ -70,7 +70,6 @@ class Storage {
       for (String s in tmp) {
         ans.add(int.parse(s));
       }
-      // ignore: avoid_print
       return ans;
     } catch (e) {
       return [];
