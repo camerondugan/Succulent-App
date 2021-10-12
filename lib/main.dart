@@ -6,7 +6,6 @@ import 'package:succ/shop.dart';
 import 'package:succ/storage.dart';
 import 'package:succ/plant_card.dart';
 import 'package:window_size/window_size.dart';
-import 'package:card_swiper/card_swiper.dart';
 import 'package:curved_navigation_bar/curved_navigation_bar.dart';
 
 void main() {
@@ -24,6 +23,27 @@ void setWindowSize() {
     setWindowMinSize(const Size(width * scale, height * scale));
     setWindowMaxSize(const Size(width * scale, height * scale));
   }
+}
+
+String changePlantSize(String plant, String size) {
+  return plant.substring(0, 15) + size + plant.substring(plant.length - 4);
+}
+
+String getPlantSize(String plant) {
+  return plant.substring(15, plant.length - 4);
+}
+
+String growPlant(String plant) {
+  if (plant.length <= 18) {
+    return plant;
+  }
+  String curSize = getPlantSize(plant);
+  if (curSize == "Sprout") {
+    plant = changePlantSize(plant, "Medium");
+  } else if (curSize == "Medium") {
+    plant = changePlantSize(plant, "Full");
+  }
+  return plant;
 }
 
 class MyApp extends StatelessWidget {
@@ -66,12 +86,12 @@ class _SuccState extends State<Succ> {
     "Empty",
   ];
   var shopPlants = [
-    "assets/Plant1Dead.png",
-    "assets/Plant1Full.png",
-    "assets/Plant1Medium.png",
-    "assets/Plant1Sprout.png",
-    "assets/Plant1Full.png",
-    "assets/Plant1Full.png",
+    "assets/Plant003Sprout.png",
+    "assets/Plant001Sprout.png",
+    "assets/Plant002Sprout.png",
+    "assets/Plant004Sprout.png",
+    "assets/Plant002Sprout.png",
+    "assets/Plant001Sprout.png",
   ];
   var colors = [
     0xffCB997E,
@@ -83,6 +103,7 @@ class _SuccState extends State<Succ> {
   ];
   DateTime now = DateTime.now();
   int pageIndex = 0;
+  int pindex = 0;
   List<int> purchasedPlants = [];
   Storage save = Storage();
 
@@ -123,7 +144,7 @@ class _SuccState extends State<Succ> {
     for (int i = 0; i < plantWater.length; i++) {
       if (plants[i] != "assets/NoPlant.png" &&
           (plantWater[i] == 0 || plantWater[i] == 2)) {
-        plants[i] = plants[i].substring(0, 13) + "Dead.png";
+        plants[i] = "assets/DeadPlant.png";
         plantWater[i] = 4;
       }
       if (plants[i].contains('Dead')) {
@@ -134,6 +155,7 @@ class _SuccState extends State<Succ> {
           plantWater[i] = 3;
         }
       }
+      plants[i] = growPlant(plants[i]);
     }
     purchasedPlants = [];
     save.writePlants(plants);
@@ -199,61 +221,80 @@ class _SuccState extends State<Succ> {
 
   @override
   Widget build(BuildContext context) {
-    var cardHeight = MediaQuery.of(context).size.width * 8 / 8;
+    var cardHeight = MediaQuery.of(context).size.width;
     var tagHeight = 2;
     var _pages = <Widget>[
-      Swiper(
-        itemCount: plants.length,
-        layout: SwiperLayout.STACK,
-        itemWidth: MediaQuery.of(context).size.width * 7 / 8,
-        itemHeight: cardHeight + tagHeight,
-        itemBuilder: (BuildContext context, int index) {
-          return GestureDetector(
-            onTap: () {
-              if (plants[index] != "assets/NoPlant.png") {
-                plantWater[index] = min(plantWater[index] + 1, 3);
-              }
-              save.writeWater(plantWater);
-              setState(() {});
-            },
-            onLongPress: () {
-              if (plants[index].contains('NoPlant')) {
-                return;
-              }
-              int hydration = plantWater[index];
-              final String plant = plants[index];
-              int shopItemIndex = takeFromHome(index);
-              SnackBar snack = SnackBar(
-                content: plant.contains("Dead")
-                    ? const Text("You threw out your plant. :(")
-                    : const Text("You sold your plant! :)"),
-                shape: const RoundedRectangleBorder(),
-                dismissDirection: DismissDirection.horizontal,
-                duration: const Duration(seconds: 1),
-                backgroundColor: Colors.greenAccent,
-                action: SnackBarAction(
-                  label: 'Undo',
-                  onPressed: () {
-                    if (shopItemIndex != -1) {
-                      takeFromShop(shopItemIndex);
-                      plantWater[index] = hydration;
-                      save.writeWater(plantWater);
-                    }
-                  },
-                ),
-              );
-              ScaffoldMessenger.of(context).showSnackBar(snack);
-            },
-            child: PlantCard(
-              tag: plantWaterExpressions[plantWater[index % plantWater.length]],
-              height: cardHeight,
-              tagHeight: tagHeight,
-              plant: plants[index],
-              index: index,
-              edgeRadius: 50,
+      Center(
+        // Plant Cards
+        child: SizedBox(
+          height: cardHeight,
+          child: PageView.builder(
+            itemCount: plants.length,
+            controller: PageController(
+              viewportFraction: .85,
             ),
-          );
-        },
+            onPageChanged: (int i) => setState(() => pindex = i),
+            physics: const BouncingScrollPhysics(),
+            pageSnapping: true,
+            itemBuilder: (_, i) {
+              return TweenAnimationBuilder(
+                tween: Tween<double>(begin: .7, end: i == pindex ? .9 : .7),
+                duration: const Duration(milliseconds: 200),
+                builder: (_, double scale, __) {
+                  return Transform.scale(
+                    scale: scale,
+                    child: GestureDetector(
+                      onTap: () {
+                        if (plants[i] != "assets/NoPlant.png") {
+                          plantWater[i] = min(plantWater[i] + 1, 2);
+                        }
+                        save.writeWater(plantWater);
+                        setState(() {});
+                      },
+                      onLongPress: () {
+                        if (plants[i].contains('NoPlant')) {
+                          return;
+                        }
+                        int hydration = plantWater[i];
+                        final String plant = plants[i];
+                        int shopItemIndex = takeFromHome(i);
+                        SnackBar snack = SnackBar(
+                          content: plant.contains("Dead")
+                              ? const Text("You threw out your plant. :(")
+                              : const Text("You sold your plant! :)"),
+                          shape: const RoundedRectangleBorder(),
+                          dismissDirection: DismissDirection.horizontal,
+                          duration: const Duration(seconds: 1),
+                          backgroundColor: Colors.greenAccent,
+                          action: SnackBarAction(
+                            label: 'Undo',
+                            onPressed: () {
+                              if (shopItemIndex != -1) {
+                                takeFromShop(shopItemIndex);
+                                plantWater[i] = hydration;
+                                save.writeWater(plantWater);
+                              }
+                            },
+                          ),
+                        );
+                        ScaffoldMessenger.of(context).showSnackBar(snack);
+                      },
+                      child: PlantCard(
+                        tag: plantWaterExpressions[
+                            plantWater[i % plantWater.length]],
+                        height: cardHeight,
+                        tagHeight: tagHeight,
+                        plant: plants[i],
+                        index: i,
+                        edgeRadius: 50,
+                      ),
+                    ),
+                  );
+                },
+              );
+            },
+          ),
+        ),
       ),
       Shop(
         shopPlants: shopPlants,
@@ -263,6 +304,61 @@ class _SuccState extends State<Succ> {
         takenPlants: purchasedPlants,
       ),
     ];
+
+    //Swiper(
+    //itemCount: plants.length,
+    //layout: SwiperLayout.STACK,
+    //itemWidth: MediaQuery.of(context).size.width * 7 / 8,
+    //itemHeight: cardHeight + tagHeight,
+    //itemBuilder: (BuildContext context, int index) {
+    //return GestureDetector(
+    //onTap: () {
+    //if (plants[index] != "assets/NoPlant.png") {
+    //plantWater[index] = min(plantWater[index] + 1, 3);
+    //}
+    //save.writeWater(plantWater);
+    //setState(() {});
+    //},
+    //onLongPress: () {
+    //if (plants[index].contains('NoPlant')) {
+    //return;
+    //}
+    //int hydration = plantWater[index];
+    //final String plant = plants[index];
+    //int shopItemIndex = takeFromHome(index);
+    //SnackBar snack = SnackBar(
+    //content: plant.contains("Dead")
+    //? const Text("You threw out your plant. :(")
+    //: const Text("You sold your plant! :)"),
+    //shape: const RoundedRectangleBorder(),
+    //dismissDirection: DismissDirection.horizontal,
+    //duration: const Duration(seconds: 1),
+    //backgroundColor: Colors.greenAccent,
+    //action: SnackBarAction(
+    //label: 'Undo',
+    //onPressed: () {
+    //if (shopItemIndex != -1) {
+    //takeFromShop(shopItemIndex);
+    //plantWater[index] = hydration;
+    //save.writeWater(plantWater);
+    //}
+    //},
+    //),
+    //);
+    //ScaffoldMessenger.of(context).showSnackBar(snack);
+    //},
+    //child: PlantCard(
+    //tag: plantWaterExpressions[plantWater[index % plantWater.length]],
+    //height: cardHeight,
+    //tagHeight: tagHeight,
+    //plant: plants[index],
+    //index: index,
+    //edgeRadius: 50,
+    //),
+    //);
+    //},
+    //),
+
     return Scaffold(
       bottomNavigationBar: CurvedNavigationBar(
         backgroundColor: Colors.blueGrey,
