@@ -3,7 +3,7 @@ import 'package:path_provider/path_provider.dart';
 
 class Storage {
   final String hiddenFolder = '.succulents';
-  final String delim = ',';
+  final String delim = '\n';
 
   Future<String> get localPath async {
     final directory = await getApplicationDocumentsDirectory();
@@ -29,14 +29,21 @@ class Storage {
     final dir = await Directory(await localPath + '/' + hiddenFolder)
         .create(recursive: true);
     final path = dir.path;
-    return File('$path/yourPlants.txt');
+    return File('$path/plants.txt');
+  }
+
+  Future<File> get _shop async {
+    final dir = await Directory(await localPath + '/' + hiddenFolder)
+        .create(recursive: true);
+    final path = dir.path;
+    return File('$path/shop.txt');
   }
 
   Future<File> get _yourWater async {
     final dir = await Directory(await localPath + '/' + hiddenFolder)
         .create(recursive: true);
     final path = dir.path;
-    return File('$path/yourWater.txt');
+    return File('$path/water.txt');
   }
 
   Future<File> get _purchases async {
@@ -51,6 +58,24 @@ class Storage {
         .create(recursive: true);
     final path = dir.path;
     return File('$path/lastTick.txt');
+  }
+
+  Future<File> writeShop(int shop) async {
+    final file = await _shop;
+
+    // Write the file
+    return file.writeAsString(shop.toString());
+  }
+
+  Future<int> readShop() async {
+    try {
+      final file = await _shop;
+
+      final contents = await file.readAsString();
+      return int.parse(contents);
+    } catch (e) {
+      return 1;
+    }
   }
 
   Future<File> writeWater(List<int> water) async {

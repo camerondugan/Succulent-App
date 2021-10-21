@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:auto_size_text/auto_size_text.dart';
 
 class PlantCard extends StatelessWidget {
   final String plant;
@@ -76,42 +77,61 @@ class PlantCard extends StatelessWidget {
                   index: showNum,
                   children: [
                     Center(
-                      child: Text(
+                      child: AutoSizeText(
                         tag,
                         style: const TextStyle(
                           color: Colors.black,
                           fontSize: 20,
                           fontWeight: FontWeight.bold,
                         ),
+                        maxLines: 1,
                       ),
                     ),
                     Center(
-                      child: Row(
-                        children: [
-                          const Spacer(),
-                          const Spacer(),
-                          const Spacer(),
-                          Text(
-                            tag,
-                            style: const TextStyle(
-                              color: Colors.black,
-                              fontSize: 20,
-                              fontWeight: FontWeight.bold,
+                      child: Padding(
+                        padding: const EdgeInsets.fromLTRB(20, 15, 20, 15),
+                        child: Row(
+                          children: [
+                            const Spacer(),
+                            const Spacer(),
+                            AutoSizeText(
+                              tag,
+                              presetFontSizes: const [
+                                40,
+                                35,
+                                30,
+                                25,
+                                20,
+                                15,
+                                10
+                              ],
+                              style: const TextStyle(
+                                color: Colors.black,
+                                fontWeight: FontWeight.bold,
+                              ),
+                              maxLines: 1,
                             ),
-                          ),
-                          const Spacer(),
-                          Text(
-                            "#" + (index + 1).toString(),
-                            style: const TextStyle(
-                              color: Colors.black,
-                              fontSize: 20,
-                              backgroundColor: Colors.greenAccent,
-                              fontWeight: FontWeight.bold,
+                            const Spacer(),
+                            AutoSizeText(
+                              "#" + (index + 1).toString(),
+                              presetFontSizes: const [
+                                40,
+                                35,
+                                30,
+                                25,
+                                20,
+                                15,
+                                10
+                              ],
+                              style: const TextStyle(
+                                color: Colors.black,
+                                backgroundColor: Colors.greenAccent,
+                                fontWeight: FontWeight.bold,
+                              ),
                             ),
-                          ),
-                          const Spacer(),
-                          const Spacer(),
-                        ],
+                            const Spacer(),
+                          ],
+                        ),
                       ),
                     ),
                   ],

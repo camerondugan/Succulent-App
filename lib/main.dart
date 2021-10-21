@@ -34,6 +34,12 @@ String getPlantSize(String plant) {
   return plant.substring(15, plant.length - 4);
 }
 
+String changePlantType(String plant, int type) {
+  return plant.substring(0, 12) +
+      type.toString().padLeft(3, '0') +
+      plant.substring(15);
+}
+
 String growPlant(String plant) {
   if (plant.length <= 18) {
     return plant;
@@ -95,14 +101,8 @@ class _SuccState extends State<Succ> {
     "I'm dead",
     "Empty",
   ];
-  var shopPlants = [
-    "assets/Plant003Sprout.png",
-    "assets/Plant001Sprout.png",
-    "assets/Plant002Sprout.png",
-    "assets/Plant004Sprout.png",
-    "assets/Plant002Sprout.png",
-    "assets/Plant001Sprout.png",
-  ];
+  var numShopPlants = 1;
+  var shopPlants = List<String>.empty();
   var colors = [
     0xffCB997E,
     0xffDDBEA9,
@@ -112,8 +112,10 @@ class _SuccState extends State<Succ> {
     0xff6B705C
   ];
   DateTime now = DateTime.now();
+  DateTime lastTick = DateTime.now();
   int pageIndex = 0;
   int pindex = 0;
+  final int difTypesOfPlants = 4;
   List<int> purchasedPlants = [];
   Storage save = Storage();
 
@@ -128,7 +130,11 @@ class _SuccState extends State<Succ> {
       var savedPlants = await save.readYourPlants();
       var savedWater = await save.readWater();
       var savedPurchases = await save.readPurchases();
-      var lastTick = await save.readLastTick();
+      numShopPlants = await save.readShop();
+      var lt = await save.readLastTick();
+      if (lt != null) {
+        lastTick = lt;
+      }
       if (savedPlants.isNotEmpty) {
         plants = savedPlants;
       }
@@ -138,23 +144,27 @@ class _SuccState extends State<Succ> {
       if (savedPurchases.isNotEmpty) {
         purchasedPlants = savedPurchases.cast<int>();
       }
-      if (lastTick == null) {
-        lastTick = now;
+      if (lt == null) {
+        lt = now;
         save.writeLastTick(now);
       }
-      if (now.difference(lastTick) > const Duration(hours: 16)) {
+      if (now.difference(lt) > const Duration(hours: 16)) {
         onTick();
         save.writeLastTick(now);
       }
+      genShopPlants();
       setState(() {});
     });
   }
 
   void onTick() {
+    bool perfectDay = true;
+    //Kill over and under wattered plants and grow the others
     for (int i = 0; i < plantWater.length; i++) {
       if (plants[i] != "assets/NoPlant.png" &&
           (plantWater[i] == 0 || plantWater[i] == 2)) {
         plants[i] = "assets/DeadPlant.png";
+        perfectDay = false;
         plantWater[i] = 4;
       }
       if (plants[i].contains('Dead')) {
@@ -166,6 +176,11 @@ class _SuccState extends State<Succ> {
         }
       }
       plants[i] = growPlant(plants[i]);
+    }
+    if (perfectDay) {
+      numShopPlants += 1;
+      numShopPlants = min(difTypesOfPlants * 2, numShopPlants);
+      save.writeShop(numShopPlants);
     }
     purchasedPlants = [];
     save.writePlants(plants);
@@ -197,6 +212,17 @@ class _SuccState extends State<Succ> {
       dismissDirection: DismissDirection.horizontal,
     );
     ScaffoldMessenger.of(context).showSnackBar(snackBar);
+  }
+
+  void genShopPlants() {
+    Random r = Random(lastTick.toString().substring(0, 10).hashCode);
+    shopPlants = List<String>.empty(growable: true);
+    var i = numShopPlants;
+    while (i > 0) {
+      shopPlants.add(changePlantType(
+          "assets/Plant000Sprout.png", r.nextInt(difTypesOfPlants) + 1));
+      i--;
+    }
   }
 
   int takeFromHome(index) {
@@ -233,7 +259,6 @@ class _SuccState extends State<Succ> {
   Widget build(BuildContext context) {
     var cardHeight = MediaQuery.of(context).size.height;
     var cardWidth = MediaQuery.of(context).size.width;
-    print(cardWidth / cardHeight);
     var tagHeight = 2;
     var _pages = <Widget>[
       Center(
@@ -243,7 +268,7 @@ class _SuccState extends State<Succ> {
           child: PageView.builder(
             itemCount: plants.length,
             controller: PageController(
-              viewportFraction: .8,
+              viewportFraction: cardWidth - 50 > cardHeight ? .5 : .9,
             ),
             onPageChanged: (int i) => setState(() => pindex = i),
             physics: const BouncingScrollPhysics(),
@@ -258,7 +283,7 @@ class _SuccState extends State<Succ> {
                     child: GestureDetector(
                       onTap: () {
                         if (plants[i] != "assets/NoPlant.png") {
-                          plantWater[i] = min(plantWater[i] + 1, 2);
+                          plantWater[i] = min(plantWater[i] + 1, 3);
                         }
                         save.writeWater(plantWater);
                         setState(() {});
@@ -272,8 +297,14 @@ class _SuccState extends State<Succ> {
                         int shopItemIndex = takeFromHome(i);
                         SnackBar snack = SnackBar(
                           content: plant.contains("Dead")
-                              ? const Text("You threw out your plant. :(")
-                              : const Text("You sold your plant! :)"),
+                              ? const Text(
+                                  "You threw out your plant. :(",
+                                  style: TextStyle(color: Colors.black),
+                                )
+                              : const Text(
+                                  "You sold your plant! :)",
+                                  style: TextStyle(color: Colors.black),
+                                ),
                           shape: const RoundedRectangleBorder(),
                           dismissDirection: DismissDirection.horizontal,
                           duration: const Duration(seconds: 1),
@@ -316,60 +347,6 @@ class _SuccState extends State<Succ> {
         takenPlants: purchasedPlants,
       ),
     ];
-
-    //Swiper(
-    //itemCount: plants.length,
-    //layout: SwiperLayout.STACK,
-    //itemWidth: MediaQuery.of(context).size.width * 7 / 8,
-    //itemHeight: cardHeight + tagHeight,
-    //itemBuilder: (BuildContext context, int index) {
-    //return GestureDetector(
-    //onTap: () {
-    //if (plants[index] != "assets/NoPlant.png") {
-    //plantWater[index] = min(plantWater[index] + 1, 3);
-    //}
-    //save.writeWater(plantWater);
-    //setState(() {});
-    //},
-    //onLongPress: () {
-    //if (plants[index].contains('NoPlant')) {
-    //return;
-    //}
-    //int hydration = plantWater[index];
-    //final String plant = plants[index];
-    //int shopItemIndex = takeFromHome(index);
-    //SnackBar snack = SnackBar(
-    //content: plant.contains("Dead")
-    //? const Text("You threw out your plant. :(")
-    //: const Text("You sold your plant! :)"),
-    //shape: const RoundedRectangleBorder(),
-    //dismissDirection: DismissDirection.horizontal,
-    //duration: const Duration(seconds: 1),
-    //backgroundColor: Colors.greenAccent,
-    //action: SnackBarAction(
-    //label: 'Undo',
-    //onPressed: () {
-    //if (shopItemIndex != -1) {
-    //takeFromShop(shopItemIndex);
-    //plantWater[index] = hydration;
-    //save.writeWater(plantWater);
-    //}
-    //},
-    //),
-    //);
-    //ScaffoldMessenger.of(context).showSnackBar(snack);
-    //},
-    //child: PlantCard(
-    //tag: plantWaterExpressions[plantWater[index % plantWater.length]],
-    //height: cardHeight,
-    //tagHeight: tagHeight,
-    //plant: plants[index],
-    //index: index,
-    //edgeRadius: 50,
-    //),
-    //);
-    //},
-    //),
 
     return Scaffold(
       bottomNavigationBar: CurvedNavigationBar(
