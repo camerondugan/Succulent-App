@@ -1,5 +1,6 @@
 import 'dart:io';
 import 'dart:math';
+import 'dart:ui';
 import 'package:flutter/services.dart';
 import 'package:flutter/material.dart';
 import 'package:succ/shop.dart';
@@ -9,7 +10,7 @@ import 'package:window_size/window_size.dart';
 import 'package:curved_navigation_bar/curved_navigation_bar.dart';
 
 void main() {
-  setWindowSize();
+  //setWindowSize();
   runApp(const MyApp());
 }
 
@@ -46,6 +47,14 @@ String growPlant(String plant) {
   return plant;
 }
 
+class AppScrollBehavior extends MaterialScrollBehavior {
+  @override
+  Set<PointerDeviceKind> get dragDevices => {
+        PointerDeviceKind.touch,
+        PointerDeviceKind.mouse,
+      };
+}
+
 class MyApp extends StatelessWidget {
   const MyApp({Key? key}) : super(key: key);
 
@@ -57,6 +66,7 @@ class MyApp extends StatelessWidget {
       theme: ThemeData.light(),
       darkTheme: ThemeData.dark(), // standard dark theme
       themeMode: ThemeMode.system, // device controls theme
+      scrollBehavior: AppScrollBehavior(),
       home: const Succ(title: 'Succulents'),
     );
   }
@@ -221,17 +231,19 @@ class _SuccState extends State<Succ> {
 
   @override
   Widget build(BuildContext context) {
-    var cardHeight = MediaQuery.of(context).size.width;
+    var cardHeight = MediaQuery.of(context).size.height;
+    var cardWidth = MediaQuery.of(context).size.width;
+    print(cardWidth / cardHeight);
     var tagHeight = 2;
     var _pages = <Widget>[
       Center(
         // Plant Cards
         child: SizedBox(
-          height: cardHeight,
+          height: min(cardHeight, cardWidth),
           child: PageView.builder(
             itemCount: plants.length,
             controller: PageController(
-              viewportFraction: .85,
+              viewportFraction: .8,
             ),
             onPageChanged: (int i) => setState(() => pindex = i),
             physics: const BouncingScrollPhysics(),

@@ -55,13 +55,13 @@ class PlantCard extends StatelessWidget {
                   Image.asset(
                     "assets/plantbg.jpg",
                     height: height,
-                    width: height,
+                    width: MediaQuery.of(context).size.width,
                     fit: BoxFit.fill,
                   ),
                   Image.asset(
                     plant,
                     height: height,
-                    fit: BoxFit.fitWidth,
+                    fit: BoxFit.cover,
                   ),
                 ],
               ),
@@ -88,7 +88,6 @@ class PlantCard extends StatelessWidget {
                     Center(
                       child: Row(
                         children: [
-                          const Spacer(),
                           const Spacer(),
                           const Spacer(),
                           const Spacer(),
