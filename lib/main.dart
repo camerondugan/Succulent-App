@@ -42,6 +42,10 @@ String changePlantType(String plant, int type) {
       plant.substring(15);
 }
 
+String getPlantType(String plant) {
+  return plant.substring(15, plant.length - 4);
+}
+
 String growPlant(String plant) {
   if (plant.length <= 18) {
     return plant;
@@ -177,11 +181,16 @@ class _SuccState extends State<Succ> {
       plants[i] = growPlant(plants[i]);
     }
     if (perfectDay) {
-      numShopPlants += 1;
-      numShopPlants = min(difTypesOfPlants * 2, numShopPlants);
+      numShopPlants++;
+      numShopPlants = min(difTypesOfPlants, numShopPlants);
       plants.add('assets/NoPlant.png');
       plantWater.add(4);
       save.writeShop(numShopPlants);
+    } else {
+      numShopPlants--;
+      if (numShopPlants == 0) {
+        numShopPlants = 1;
+      }
     }
     purchasedPlants = [];
     save.writePlants(plants);
@@ -299,6 +308,9 @@ class _SuccState extends State<Succ> {
                         int hydration = plantWater[i];
                         final String plant = plants[i];
                         int shopItemIndex = takeFromHome(i);
+                        if (getPlantType(plant) == "Full") {
+                          numShopPlants++;
+                        }
                         SnackBar snack = SnackBar(
                           content: plant.contains("Dead")
                               ? const Text(
