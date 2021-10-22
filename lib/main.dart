@@ -9,6 +9,8 @@ import 'package:succ/plant_card.dart';
 import 'package:window_size/window_size.dart';
 import 'package:curved_navigation_bar/curved_navigation_bar.dart';
 
+import 'first_day_done_dialogue.dart';
+
 void main() {
   //setWindowSize();
   runApp(const MyApp());
@@ -89,11 +91,8 @@ class Succ extends StatefulWidget {
 class _SuccState extends State<Succ> {
   var plants = [
     "assets/NoPlant.png",
-    "assets/NoPlant.png",
-    "assets/NoPlant.png",
-    "assets/NoPlant.png",
   ];
-  var plantWater = [4, 4, 4, 4];
+  var plantWater = [4];
   var plantWaterExpressions = [
     "I'm dehydrated",
     "I'm satisfied",
@@ -148,7 +147,7 @@ class _SuccState extends State<Succ> {
         lt = now;
         save.writeLastTick(now);
       }
-      if (now.difference(lt) > const Duration(hours: 16)) {
+      if (now.difference(lt) > const Duration(hours: 0)) {
         onTick();
         save.writeLastTick(now);
       }
@@ -160,7 +159,7 @@ class _SuccState extends State<Succ> {
   void onTick() {
     bool perfectDay = true;
     //Kill over and under wattered plants and grow the others
-    for (int i = 0; i < plantWater.length; i++) {
+    for (int i = 0; i < plants.length; i++) {
       if (plants[i] != "assets/NoPlant.png" &&
           (plantWater[i] == 0 || plantWater[i] == 2)) {
         plants[i] = "assets/DeadPlant.png";
@@ -180,6 +179,8 @@ class _SuccState extends State<Succ> {
     if (perfectDay) {
       numShopPlants += 1;
       numShopPlants = min(difTypesOfPlants * 2, numShopPlants);
+      plants.add('assets/NoPlant.png');
+      plantWater.add(4);
       save.writeShop(numShopPlants);
     }
     purchasedPlants = [];
@@ -284,6 +285,9 @@ class _SuccState extends State<Succ> {
                       onTap: () {
                         if (plants[i] != "assets/NoPlant.png") {
                           plantWater[i] = min(plantWater[i] + 1, 3);
+                        }
+                        if (plants.length == 1 && plantWater[i] == 1) {
+                          dialogue(context);
                         }
                         save.writeWater(plantWater);
                         setState(() {});
