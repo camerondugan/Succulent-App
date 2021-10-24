@@ -181,22 +181,16 @@ class _SuccState extends State<Succ> {
       plants[i] = growPlant(plants[i]);
     }
     if (perfectDay) {
-<<<<<<< HEAD
-      //increase plant slots and shop slots
-      plants.add('assets/NoPlant.png');
-      plantWater.add(4);
-=======
       numShopPlants++;
-      numShopPlants = min(difTypesOfPlants, numShopPlants);
+      numShopPlants = max(1, min((plants.length / 2).round(), numShopPlants));
       plants.add('assets/NoPlant.png');
       plantWater.add(4);
       save.writeShop(numShopPlants);
     } else {
       numShopPlants--;
-      if (numShopPlants == 0) {
+      if (numShopPlants <= 0) {
         numShopPlants = 1;
       }
->>>>>>> 86535028ce1257a9b03686b72082c64f1a479459
     }
     numShopPlants = max((plants.length / 2).round(), 1);
     purchasedPlants = [];
