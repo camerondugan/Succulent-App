@@ -40,7 +40,9 @@ class Shop extends StatelessWidget {
             padding: const EdgeInsets.all(8.0),
             child: GestureDetector(
               onTap: () {
-                takeFromShop(index);
+                if (!takenPlants.contains(index)) {
+                  takeFromShop(index);
+                }
               },
               child: PlantCard(
                 plant: takenPlants.contains(index)

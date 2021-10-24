@@ -177,16 +177,16 @@ class _SuccState extends State<Succ> {
       plants[i] = growPlant(plants[i]);
     }
     if (perfectDay) {
-      numShopPlants += 1;
-      numShopPlants = min(difTypesOfPlants * 2, numShopPlants);
+      //increase plant slots and shop slots
       plants.add('assets/NoPlant.png');
       plantWater.add(4);
-      save.writeShop(numShopPlants);
     }
+    numShopPlants = max((plants.length / 2).round(), 1);
     purchasedPlants = [];
     save.writePlants(plants);
     save.writeWater(plantWater);
     save.writePurchases(purchasedPlants);
+    save.writeShop(numShopPlants);
   }
 
   void takeFromShop(index) {
@@ -227,17 +227,18 @@ class _SuccState extends State<Succ> {
   }
 
   int takeFromHome(index) {
-    int i = 0;
     if (plants[index].contains("Dead")) {
-      plants[index] = 'assets/NoPlant.png';
-      plantWater[index] = 4;
+      plantWater.removeAt(index);
+      plants.removeAt(index);
       setState(() {});
       save.writePlants(plants);
       save.writeWater(plantWater);
+      return -1;
     }
-    for (String plant in shopPlants) {
-      if (plant == plants[index] && purchasedPlants.contains(i)) {
+    for (int i = 0; i < shopPlants.length; i++) {
+      if (purchasedPlants.contains(i) && plantWater[index] < 2) {
         purchasedPlants.remove(i);
+        shopPlants[i] = plants[index];
         plants[index] = 'assets/NoPlant.png';
         plantWater[index] = 4;
         setState(() {});
@@ -246,7 +247,6 @@ class _SuccState extends State<Succ> {
         save.writePurchases(purchasedPlants);
         return i;
       }
-      i++;
     }
     plants[index] = 'assets/NoPlant.png';
     plantWater[index] = 4;
@@ -283,8 +283,9 @@ class _SuccState extends State<Succ> {
                     scale: scale,
                     child: GestureDetector(
                       onTap: () {
-                        if (plants[i] != "assets/NoPlant.png") {
-                          plantWater[i] = min(plantWater[i] + 1, 3);
+                        if (plants[i] == "assets/DeadPlant.png") {
+                        } else if (plants[i] != "assets/NoPlant.png") {
+                          plantWater[i] = min(plantWater[i] + 1, 2);
                         }
                         if (plants.length == 1 && plantWater[i] == 1) {
                           dialogue(context);
@@ -313,16 +314,6 @@ class _SuccState extends State<Succ> {
                           dismissDirection: DismissDirection.horizontal,
                           duration: const Duration(seconds: 1),
                           backgroundColor: Colors.greenAccent,
-                          action: SnackBarAction(
-                            label: 'Undo',
-                            onPressed: () {
-                              if (shopItemIndex != -1) {
-                                takeFromShop(shopItemIndex);
-                                plantWater[i] = hydration;
-                                save.writeWater(plantWater);
-                              }
-                            },
-                          ),
                         );
                         ScaffoldMessenger.of(context).showSnackBar(snack);
                       },
