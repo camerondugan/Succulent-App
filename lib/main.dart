@@ -119,6 +119,7 @@ class _SuccState extends State<Succ> {
   int pageIndex = 0;
   int pindex = 0;
   final int difTypesOfPlants = 4;
+  int plantVariety = 1;
   List<int> purchasedPlants = [];
   Storage save = Storage();
 
@@ -134,6 +135,7 @@ class _SuccState extends State<Succ> {
       var savedWater = await save.readWater();
       var savedPurchases = await save.readPurchases();
       numShopPlants = await save.readShop();
+      plantVariety = await save.readVariety();
       var lt = await save.readLastTick();
       if (lt != null) {
         lastTick = lt;
@@ -185,12 +187,18 @@ class _SuccState extends State<Succ> {
       numShopPlants = max(1, min((plants.length / 2).round(), numShopPlants));
       plants.add('assets/NoPlant.png');
       plantWater.add(4);
+      plantVariety++;
+      plantVariety = min(difTypesOfPlants, plantVariety);
+      save.writeVariety(plantVariety);
       save.writeShop(numShopPlants);
     } else {
       numShopPlants--;
       if (numShopPlants <= 0) {
         numShopPlants = 1;
       }
+      plantVariety--;
+      plantVariety = min(1, plantVariety);
+      save.writeVariety(plantVariety);
     }
     numShopPlants = max((plants.length / 2).round(), 1);
     purchasedPlants = [];
@@ -232,7 +240,7 @@ class _SuccState extends State<Succ> {
     var i = numShopPlants;
     while (i > 0) {
       shopPlants.add(changePlantType(
-          "assets/Plant000Sprout.png", r.nextInt(difTypesOfPlants) + 1));
+          "assets/Plant000Sprout.png", r.nextInt(plantVariety) + 1));
       i--;
     }
   }

@@ -39,6 +39,13 @@ class Storage {
     return File('$path/shop.txt');
   }
 
+  Future<File> get _plantVariety async {
+    final dir = await Directory(await localPath + '/' + hiddenFolder)
+        .create(recursive: true);
+    final path = dir.path;
+    return File('$path/variety.txt');
+  }
+
   Future<File> get _yourWater async {
     final dir = await Directory(await localPath + '/' + hiddenFolder)
         .create(recursive: true);
@@ -70,6 +77,24 @@ class Storage {
   Future<int> readShop() async {
     try {
       final file = await _shop;
+
+      final contents = await file.readAsString();
+      return int.parse(contents);
+    } catch (e) {
+      return 1;
+    }
+  }
+
+  Future<File> writeVariety(int variety) async {
+    final file = await _plantVariety;
+
+    // Write the file
+    return file.writeAsString(variety.toString());
+  }
+
+  Future<int> readVariety() async {
+    try {
+      final file = await _plantVariety;
 
       final contents = await file.readAsString();
       return int.parse(contents);
