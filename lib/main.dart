@@ -118,7 +118,7 @@ class _SuccState extends State<Succ> {
   DateTime lastTick = DateTime.now();
   int pageIndex = 0;
   int pindex = 0;
-  final int difTypesOfPlants = 4;
+  final int difTypesOfPlants = 5;
   int plantVariety = 1;
   List<int> purchasedPlants = [];
   Storage save = Storage();
@@ -153,7 +153,7 @@ class _SuccState extends State<Succ> {
         lt = now;
         save.writeLastTick(now);
       }
-      if (now.difference(lt) > const Duration(hours: 0)) {
+      if (now.difference(lt) > const Duration(hours: 16)) {
         onTick();
         save.writeLastTick(now);
       }
