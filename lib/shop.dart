@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:succ/plant_card.dart';
+import 'plant_card.dart';
 
 class Shop extends StatelessWidget {
   final List<String> shopPlants;

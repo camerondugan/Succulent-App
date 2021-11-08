@@ -3,16 +3,15 @@ import 'dart:math';
 import 'dart:ui';
 import 'package:flutter/services.dart';
 import 'package:flutter/material.dart';
-import 'package:succ/shop.dart';
-import 'package:succ/storage.dart';
-import 'package:succ/plant_card.dart';
+import 'shop.dart';
+import 'storage.dart';
+import 'plant_card.dart';
 import 'package:window_size/window_size.dart';
 import 'package:curved_navigation_bar/curved_navigation_bar.dart';
-
 import 'first_day_done_dialogue.dart';
 
 void main() {
-  //setWindowSize();
+  setWindowSize();
   runApp(const MyApp());
 }
 
@@ -21,7 +20,7 @@ void setWindowSize() {
     WidgetsFlutterBinding.ensureInitialized();
     const scale = 55.0;
     const width = 9.0;
-    const height = 19.0;
+    const height = 16.0;
     setWindowTitle('Succulents');
     setWindowMinSize(const Size(width * scale, height * scale));
     setWindowMaxSize(const Size(width * scale, height * scale));
