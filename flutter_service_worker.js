@@ -40,14 +40,14 @@ const RESOURCES = {
 "assets/AssetManifest.json": "75934a6e305be5de13d20922882a2693",
 "assets/FontManifest.json": "dc3d03800ccca4601324923c0b1d6d57",
 "assets/NOTICES": "e3a3ca2fda65cb12dcebb8f7926ca3f3",
-"favicon.png": "5dcef449791fa27946b3d35ad8803796",
-"icons/Icon-192.png": "ac9a721a12bbc803b44f645561ecb1e1",
-"icons/Icon-512.png": "96e752610906ba2a93c65f8abe1645f1",
-"icons/Icon-maskable-192.png": "c457ef57daa1d16f64b27b786ec2ea3c",
-"icons/Icon-maskable-512.png": "301a7604d45b3e739efc881eb04896ea",
-"index.html": "895e2c33e784885c6e920eb393c9a1f7",
-"/": "895e2c33e784885c6e920eb393c9a1f7",
-"manifest.json": "4adad22f8e2ab2624cbfb1c3ccb35c1c"
+"favicon.png": "92a37bc28ac8464dc023df18e0e2336f",
+"icons/Icon-192.png": "0af847587c0101516dcb01f1c5785c99",
+"icons/Icon-512.png": "f7e547ecad452d3eb2c28d65c36283c0",
+"icons/Icon-maskable-192.png": "0af847587c0101516dcb01f1c5785c99",
+"icons/Icon-maskable-512.png": "f7e547ecad452d3eb2c28d65c36283c0",
+"index.html": "ae8ad9b2c1b0e61732b0a6100dade8f2",
+"/": "ae8ad9b2c1b0e61732b0a6100dade8f2",
+"manifest.json": "8b2433737cbf6f5d658043537d9d5646"
 };
 
 // The application shell files that are downloaded before a service worker can
