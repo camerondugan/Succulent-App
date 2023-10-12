@@ -1,4 +1,3 @@
-import 'dart:io';
 import 'dart:math';
 import 'dart:ui';
 import 'package:flutter/services.dart';
@@ -315,7 +314,6 @@ class _SuccState extends State<Succ> {
                         if (plants[i].contains('NoPlant')) {
                           return;
                         }
-                        int hydration = plantWater[i];
                         final String plant = plants[i];
                         int shopItemIndex = takeFromHome(i);
                         if (getPlantType(plant) == "Full") {
