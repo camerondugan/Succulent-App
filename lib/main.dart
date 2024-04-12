@@ -5,26 +5,12 @@ import 'package:flutter/material.dart';
 import 'shop.dart';
 import 'storage.dart';
 import 'plant_card.dart';
-//import 'package:window_size/window_size.dart';
 import 'package:curved_navigation_bar/curved_navigation_bar.dart';
 import 'first_day_done_dialogue.dart';
 
 void main() {
-  //setWindowSize();
   runApp(const MyApp());
 }
-
-//void setWindowSize() {
-  //if (Platform.isWindows || Platform.isLinux || Platform.isMacOS) {
-    //WidgetsFlutterBinding.ensureInitialized();
-    //const scale = 55.0;
-    //const width = 9.0;
-    //const height = 16.0;
-    //setWindowTitle('Succulents');
-    //setWindowMinSize(const Size(width * scale, height * scale));
-    //setWindowMaxSize(const Size(width * scale, height * scale));
-  //}
-//}
 
 String changePlantSize(String plant, String size) {
   return plant.substring(0, 15) + size + plant.substring(plant.length - 4);
@@ -162,7 +148,7 @@ class _SuccState extends State<Succ> {
 
   void onTick() {
     bool perfectDay = true;
-    //Kill over and under wattered plants and grow the others
+    //Kill over and under watered plants and grow the others
     for (int i = 0; i < plants.length; i++) {
       if (plants[i] != "assets/NoPlant.png" &&
           (plantWater[i] == 0 || plantWater[i] == 2)) {
@@ -278,7 +264,7 @@ class _SuccState extends State<Succ> {
     var cardHeight = MediaQuery.of(context).size.height;
     var cardWidth = MediaQuery.of(context).size.width;
     var tagHeight = 2;
-    var _pages = <Widget>[
+    var pages = <Widget>[
       Center(
         // Plant Cards
         child: SizedBox(
@@ -315,7 +301,6 @@ class _SuccState extends State<Succ> {
                           return;
                         }
                         final String plant = plants[i];
-                        int shopItemIndex = takeFromHome(i);
                         if (getPlantType(plant) == "Full") {
                           numShopPlants++;
                         }
@@ -388,7 +373,7 @@ class _SuccState extends State<Succ> {
       backgroundColor: Colors.blueGrey,
       body: IndexedStack(
         index: pageIndex,
-        children: _pages,
+        children: pages,
       ),
     );
   }

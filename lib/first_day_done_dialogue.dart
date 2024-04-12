@@ -6,7 +6,7 @@ void dialogue(context) {
     builder: (BuildContext context) => AlertDialog(
       title: const Text('Congratulations!'),
       content: const Text(
-          'The first day is done, come back tommorrow to see your plant grow!'),
+          'The first day is done, come back tomorrow to see your plant grow!'),
       actions: <Widget>[
         TextButton(
           onPressed: () => Navigator.pop(context, 'OK'),

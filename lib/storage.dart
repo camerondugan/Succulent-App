@@ -26,42 +26,42 @@ class Storage {
   }
 
   Future<File> get _yourPlantsFile async {
-    final dir = await Directory(await localPath + '/' + hiddenFolder)
+    final dir = await Directory('${await localPath}/$hiddenFolder')
         .create(recursive: true);
     final path = dir.path;
     return File('$path/plants.txt');
   }
 
   Future<File> get _shop async {
-    final dir = await Directory(await localPath + '/' + hiddenFolder)
+    final dir = await Directory('${await localPath}/$hiddenFolder')
         .create(recursive: true);
     final path = dir.path;
     return File('$path/shop.txt');
   }
 
   Future<File> get _plantVariety async {
-    final dir = await Directory(await localPath + '/' + hiddenFolder)
+    final dir = await Directory('${await localPath}/$hiddenFolder')
         .create(recursive: true);
     final path = dir.path;
     return File('$path/variety.txt');
   }
 
   Future<File> get _yourWater async {
-    final dir = await Directory(await localPath + '/' + hiddenFolder)
+    final dir = await Directory('${await localPath}/$hiddenFolder')
         .create(recursive: true);
     final path = dir.path;
     return File('$path/water.txt');
   }
 
   Future<File> get _purchases async {
-    final dir = await Directory(await localPath + '/' + hiddenFolder)
+    final dir = await Directory('${await localPath}/$hiddenFolder')
         .create(recursive: true);
     final path = dir.path;
     return File('$path/purchases.txt');
   }
 
   Future<File> get _lastTick async {
-    final dir = await Directory(await localPath + '/' + hiddenFolder)
+    final dir = await Directory('${await localPath}/$hiddenFolder')
         .create(recursive: true);
     final path = dir.path;
     return File('$path/lastTick.txt');
