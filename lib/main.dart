@@ -103,7 +103,7 @@ class _SuccState extends State<Succ> {
   int pageIndex = 0;
   int pindex = 0;
   final int difTypesOfPlants = 5;
-  int plantVariety = 1;
+  int shopPlantVariety = 1;
   List<int> purchasedPlants = [];
   Storage save = Storage();
 
@@ -115,53 +115,66 @@ class _SuccState extends State<Succ> {
       DeviceOrientation.portraitDown,
     ]);
     Future.delayed(Duration.zero, () async {
-      var savedPlants = await save.readYourPlants();
-      var savedWater = await save.readWater();
-      var savedPurchases = await save.readPurchases();
+      // concurrently load in saved data
       numShopPlants = await save.readShop();
-      plantVariety = await save.readVariety();
+      shopPlantVariety = await save.readVariety();
       var lt = await save.readLastTick();
       if (lt != null) {
         lastTick = lt;
+      } else {
+        lt = now;
+        save.writeLastTick(lt);
       }
+      var savedPlants = await save.readYourPlants();
       if (savedPlants.isNotEmpty) {
         plants = savedPlants;
       }
+      var savedWater = await save.readWater();
       if (savedWater.isNotEmpty) {
         plantWater = savedWater;
       }
+      var savedPurchases = await save.readPurchases();
       if (savedPurchases.isNotEmpty) {
         purchasedPlants = savedPurchases.cast<int>();
       }
-      if (lt == null) {
-        lt = now;
-        save.writeLastTick(now);
-      }
-      if (now.difference(lt) > const Duration(hours: 16)) {
-        onTick();
-        save.writeLastTick(now);
-      }
+      var timePassed = now.difference(lt);
+      onNeglect(timePassed);
+      onTimePassed(timePassed);
       genShopPlants();
       setState(() {});
     });
   }
 
-  void onTick() {
+  void onNeglect(Duration timePassed) {
+    // All plants die when too much time passes
+    if (timePassed <= const Duration(days: 6)) {
+      return;
+    }
+    for (int i = 0; i < plants.length; i++) {
+      plantWater[i] = 0;
+    }
+    //TODO: Display message about how sad it is
+  }
+
+  void onTimePassed(Duration timePassed) {
+    if (timePassed <= const Duration(hours: 16)) {
+      return;
+    }
     bool perfectDay = true;
     //Kill over and under watered plants and grow the others
     for (int i = 0; i < plants.length; i++) {
       if (plants[i] != "assets/NoPlant.png" &&
           (plantWater[i] == 0 || plantWater[i] == 2)) {
         plants[i] = "assets/DeadPlant.png";
-        perfectDay = false;
         plantWater[i] = 4;
+        perfectDay = false;
       }
       if (plants[i].contains('Dead')) {
-        plantWater[i] = 3;
+        plantWater[i] = 3; // sets plant state to dead
       } else if (!plants[i].contains("NoPlant")) {
         plantWater[i] -= 1;
         if (plantWater[i] == -1) {
-          plantWater[i] = 3;
+          plantWater[i] = 3; // sets plant state to dead
         }
       }
       plants[i] = growPlant(plants[i]);
@@ -171,25 +184,26 @@ class _SuccState extends State<Succ> {
       numShopPlants = max(1, min((plants.length / 2).round(), numShopPlants));
       plants.add('assets/NoPlant.png');
       plantWater.add(4);
-      plantVariety++;
-      plantVariety = min(difTypesOfPlants, plantVariety);
-      save.writeVariety(plantVariety);
-      save.writeShop(numShopPlants);
+      shopPlantVariety++;
+      shopPlantVariety = min(difTypesOfPlants, shopPlantVariety);
+      // save plant variety and shop state
     } else {
       numShopPlants--;
       if (numShopPlants <= 0) {
         numShopPlants = 1;
       }
-      plantVariety--;
-      plantVariety = min(1, plantVariety);
-      save.writeVariety(plantVariety);
+      shopPlantVariety--;
+      shopPlantVariety = min(1, shopPlantVariety);
     }
     numShopPlants = max((plants.length / 2).round(), 1);
     purchasedPlants = [];
     save.writePlants(plants);
+    save.writeVariety(shopPlantVariety);
     save.writeWater(plantWater);
     save.writePurchases(purchasedPlants);
-    save.writeShop(numShopPlants);
+    save.writeNumShopPlants(numShopPlants);
+    // save last now as update
+    save.writeLastTick(now);
   }
 
   void takeFromShop(index) {
@@ -224,39 +238,9 @@ class _SuccState extends State<Succ> {
     var i = numShopPlants;
     while (i > 0) {
       shopPlants.add(changePlantType(
-          "assets/Plant000Sprout.png", r.nextInt(plantVariety) + 1));
+          "assets/Plant000Sprout.png", r.nextInt(shopPlantVariety) + 1));
       i--;
     }
-  }
-
-  int takeFromHome(index) {
-    if (plants[index].contains("Dead")) {
-      plantWater.removeAt(index);
-      plants.removeAt(index);
-      setState(() {});
-      save.writePlants(plants);
-      save.writeWater(plantWater);
-      return -1;
-    }
-    for (int i = 0; i < shopPlants.length; i++) {
-      if (purchasedPlants.contains(i) && plantWater[index] < 2) {
-        purchasedPlants.remove(i);
-        shopPlants[i] = plants[index];
-        plants[index] = 'assets/NoPlant.png';
-        plantWater[index] = 4;
-        setState(() {});
-        save.writePlants(plants);
-        save.writeWater(plantWater);
-        save.writePurchases(purchasedPlants);
-        return i;
-      }
-    }
-    plants[index] = 'assets/NoPlant.png';
-    plantWater[index] = 4;
-    setState(() {});
-    save.writePlants(plants);
-    save.writeWater(plantWater);
-    return -1;
   }
 
   @override
@@ -286,8 +270,7 @@ class _SuccState extends State<Succ> {
                     scale: scale,
                     child: GestureDetector(
                       onTap: () {
-                        if (plants[i] == "assets/DeadPlant.png") {
-                        } else if (plants[i] != "assets/NoPlant.png") {
+                        if (plants[i] != "assets/NoPlant.png") {
                           plantWater[i] = min(plantWater[i] + 1, 2);
                         }
                         if (plants.length == 1 && plantWater[i] == 1) {
@@ -303,7 +286,10 @@ class _SuccState extends State<Succ> {
                         final String plant = plants[i];
                         if (getPlantType(plant) == "Full") {
                           numShopPlants++;
+                          save.writeNumShopPlants(numShopPlants);
                         }
+                        sellPlant(i);
+                        setState(() {});
                         SnackBar snack = SnackBar(
                           content: plant.contains("Dead")
                               ? const Text(
@@ -351,7 +337,7 @@ class _SuccState extends State<Succ> {
       bottomNavigationBar: CurvedNavigationBar(
         backgroundColor: Colors.blueGrey,
         index: pageIndex,
-        color: Colors.black,
+        color: Colors.black54,
         animationCurve: Curves.fastOutSlowIn,
         animationDuration: const Duration(milliseconds: 300),
         items: const <Widget>[
@@ -368,7 +354,7 @@ class _SuccState extends State<Succ> {
         centerTitle: true,
         primary: true,
         foregroundColor: Colors.white,
-        backgroundColor: Colors.black,
+        backgroundColor: Colors.black54,
       ),
       backgroundColor: Colors.blueGrey,
       body: IndexedStack(
@@ -376,5 +362,17 @@ class _SuccState extends State<Succ> {
         children: pages,
       ),
     );
+  }
+
+  void sellPlant(int i) {
+    plants.removeAt(i);
+    plantWater.removeAt(i);
+    // make sure we always have one plant slot
+    if (plants.isEmpty) {
+      plants.add('assets/NoPlant.png');
+      plantWater.add(4);
+    }
+    save.writePlants(plants);
+    save.writeWater(plantWater);
   }
 }

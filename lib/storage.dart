@@ -67,7 +67,7 @@ class Storage {
     return File('$path/lastTick.txt');
   }
 
-  Future<File> writeShop(int shop) async {
+  Future<File> writeNumShopPlants(int shop) async {
     final file = await _shop;
 
     // Write the file

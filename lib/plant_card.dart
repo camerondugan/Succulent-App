@@ -113,7 +113,7 @@ class PlantCard extends StatelessWidget {
                             ),
                             const Spacer(),
                             AutoSizeText(
-                              "#" + (index + 1).toString(),
+                              "#${index + 1}",
                               presetFontSizes: const [
                                 40,
                                 35,
